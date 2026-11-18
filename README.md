@@ -4,8 +4,8 @@ Lokální desktopový CRM pro evidenci objektů, jejich správců, kontaktů, m�
 
 ## Požadavky
 
-- Node.js 22.12+ nebo 24 LTS a npm. Verze balíčků jsou uzamčené v `package-lock.json`.
-- Aktuální stabilní Rust přes [rustup](https://rustup.rs/), Cargo a nástroje platformy pro [Tauri 2](https://v2.tauri.app/start/prerequisites/).
+- Node.js 22.22.2+ v řadě 22, 24.15+ v řadě 24 nebo novější stabilní verze a npm. Verze balíčků jsou uzamčené v `package-lock.json`.
+- Stabilní Rust 1.94 nebo novější přes [rustup](https://rustup.rs/), Cargo a nástroje platformy pro [Tauri 2](https://v2.tauri.app/start/prerequisites/).
 - Debian 13 / Ubuntu 24.04: nainstalujte vývojové knihovny GTK a WebKitGTK 4.1.
 
   ```sh

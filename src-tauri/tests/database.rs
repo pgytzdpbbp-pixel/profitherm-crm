@@ -135,7 +135,7 @@ async fn independent_objects_and_address_search() {
                 }
             )
             .await,
-            [id.clone()]
+            std::slice::from_ref(&id)
         );
     }
     assert!(
