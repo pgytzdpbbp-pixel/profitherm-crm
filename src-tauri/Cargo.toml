@@ -1,0 +1,31 @@
+[package]
+name = "profitherm-crm"
+version = "0.1.0"
+description = "Lokální evidence objektů a komunikace"
+edition = "2024"
+rust-version = "1.94"
+
+[features]
+default = ["desktop"]
+desktop = ["dep:tauri", "dep:tauri-build", "dep:tauri-plugin-dialog", "dep:tauri-plugin-single-instance"]
+
+[build-dependencies]
+tauri-build = { version = "2", optional = true , features = [] }
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde", "std"] }
+serde = { version = "1", features = ["derive"] }
+sqlx = { version = "0.9", default-features = false, features = ["runtime-tokio", "sqlite-bundled", "migrate", "macros"] }
+tauri = { version = "2", optional = true , features = [] }
+tauri-plugin-dialog = { version = "2", optional = true }
+tauri-plugin-single-instance = { version = "2", optional = true }
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "rt-multi-thread", "macros"] }
+unicode-normalization = "0.1"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[[bin]]
+name = "profitherm-crm"
+path = "src/main.rs"
+required-features = ["desktop"]
