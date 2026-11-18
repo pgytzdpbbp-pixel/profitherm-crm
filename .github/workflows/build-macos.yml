@@ -1,0 +1,86 @@
+name: macOS DMG
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/build-macos.yml'
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'index.html'
+      - 'package*.json'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  dmg:
+    name: DMG (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+            target: aarch64-apple-darwin
+          - arch: x86_64
+            runner: macos-15-intel
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    env:
+      # Ad-hoc signature. No Apple Developer ID credentials are needed.
+      ARCH: ${{ matrix.arch }}
+      TARGET: ${{ matrix.target }}
+      APPLE_SIGNING_IDENTITY: '-'
+      CARGO_TARGET_DIR: ${{ github.workspace }}/src-tauri/target
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup target add "$TARGET"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build the installer
+        run: npm run tauri -- build --ci --target "$TARGET" --bundles dmg -- --locked
+
+      - name: Verify the installer
+        shell: bash
+        run: |
+          images=("$CARGO_TARGET_DIR/$TARGET/release/bundle/dmg/"*.dmg)
+          [[ ${#images[@]} -eq 1 && -f "${images[0]}" ]]
+          hdiutil verify "${images[0]}"
+          mountpoint=$(mktemp -d)
+          hdiutil attach -readonly -nobrowse -mountpoint "$mountpoint" "${images[0]}"
+          trap 'hdiutil detach "$mountpoint"; rmdir "$mountpoint"' EXIT
+          apps=("$mountpoint"/*.app)
+          [[ ${#apps[@]} -eq 1 && -d "${apps[0]}" ]]
+          [[ "$(lipo -archs "${apps[0]}/Contents/MacOS/profitherm-crm")" == "$ARCH" ]]
+          codesign --verify --deep --strict "${apps[0]}"
+          if [[ -n "$(find "$mountpoint" -type f \( -iname '*.db' -o -iname '*.db-*' -o -iname '*.sqlite*' \) -print -quit)" ]]; then
+            echo "::error::The installer contains a SQLite database or sidecar file."
+            exit 1
+          fi
+
+      - name: Upload the DMG
+        uses: actions/upload-artifact@v7
+        with:
+          name: PROFITHERM-CRM-macOS-${{ matrix.arch }}
+          path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
