@@ -2,6 +2,14 @@
 
 Lokální desktopový CRM pro evidenci objektů, jejich správců, kontaktů, měřidel a komunikace. Aplikace je v češtině a po sestavení funguje offline. Data jsou uložena v lokální databázi SQLite.
 
+## Stažení a instalace na macOS
+
+1. Po sloučení workflow do výchozí větve otevřete v repozitáři **Actions → macOS DMG → Run workflow**. Vyberte `main` a spusťte sestavení. Pro samotné stažení můžete použít i existující úspěšný běh.
+2. V detailu úspěšného běhu v části **Artifacts** stáhněte `PROFITHERM-CRM-macOS-universal`. K soukromému repozitáři potřebujete příslušný přístup a přihlášení ke GitHubu. Artefakt je dostupný 30 dní.
+3. Rozbalte ZIP, otevřete soubor `.dmg` a přetáhněte **PROFITHERM CRM.app** do složky **Aplikace**. Jeden instalátor obsahuje verzi pro Apple Silicon i Intel. Databáze vznikne lokálně při prvním spuštění.
+
+Sestavení používá ad hoc podpis a nemá podpis Apple Developer ID ani notarizaci. Gatekeeper proto může první spuštění zablokovat. Pokud jste DMG stáhli z důvěryhodného běhu tohoto repozitáře, zkuste aplikaci otevřít, potom přejděte do **Nastavení systému → Soukromí a zabezpečení** a u blokované aplikace zvolte **Přesto otevřít**. Spravovaný Mac může tuto výjimku zakázat. Pro běžnou distribuci bez tohoto kroku je potřeba podpis Developer ID a notarizace. [Pokyny Apple ke Gatekeeperu](https://support.apple.com/cs-cz/102445)
+
 ## Požadavky
 
 - Node.js 22.22.2+ v řadě 22, 24.15+ v řadě 24 nebo novější stabilní verze a npm. Verze balíčků jsou uzamčené v `package-lock.json`.
